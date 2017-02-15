@@ -157,41 +157,21 @@ public abstract class ExpandableAdapter extends RecyclerView.Adapter {
      * @param menu 指定的菜单
      */
     public void notifyCloseMenu(ExpandableMenu menu){
-        closeMenus(mShowExpandableMenus, menu, true);
-    }
-
-    /**
-     * 递归关闭所有的子菜单
-     */
-    private void closeMenus(List<ExpandableMenu> shows,ExpandableMenu menu,boolean notify){
         if(menu == null||!menu.isExpanded()){
             return;
         }
-        int index = shows.indexOf(menu);
+        int index = mShowExpandableMenus.indexOf(menu);
         if(index == -1){
             return;
         }
-        ExpandableMenu realMenu = shows.get(index);
-        int len = 0;
-        if(notify){
-            if(realMenu.hasChildren()){
-                len = realMenu.calculateAllVisibleChildrenCount(realMenu);
-            }else{
-                len = 0;
-            }
-        }
+        ExpandableMenu realMenu = mShowExpandableMenus.get(index);
         realMenu.setExpanded(false);
+        int oldCount = mShowExpandableMenus.size();
+        mShowExpandableMenus = generateShowExpandableMenus(mExpandableMenus);
+        int len = oldCount - mShowExpandableMenus.size();
+        notifyItemRangeRemoved(index + 1, len);
         for(OnExpandableMenuStateChangeListener listener:mListeners){
             listener.onMenuClose(menu);
-        }
-        int count = realMenu.getChildren().size();
-        for(int i = count - 1; i >= 0;i--){
-            ExpandableMenu c = realMenu.getChildren().get(i);
-            closeMenus(shows,c,false);
-            shows.remove(c);
-        }
-        if(notify){
-            notifyItemRangeRemoved(index + 1, len);
         }
     }
 
@@ -209,19 +189,12 @@ public abstract class ExpandableAdapter extends RecyclerView.Adapter {
         }
         ExpandableMenu reaMenu = mShowExpandableMenus.get(index);
         reaMenu.setExpanded(true);
+        int oldCount = mShowExpandableMenus.size();
+        mShowExpandableMenus = generateShowExpandableMenus(mExpandableMenus);
+        int len = mShowExpandableMenus.size() - oldCount;
+        notifyItemRangeInserted(index + 1, len);
         for(OnExpandableMenuStateChangeListener listener:mListeners){
             listener.onMenuExpand(menu);
         }
-        int len;
-        if(reaMenu.hasChildren()){
-            len = reaMenu.getChildren().size();
-        }else{
-            len = 0;
-        }
-        for(int i = 0;i < len;i++){
-            ExpandableMenu c = reaMenu.getChildren().get(i);
-            mShowExpandableMenus.add(index + i + 1,c);
-        }
-        notifyItemRangeInserted(index + 1, len);
     }
 }

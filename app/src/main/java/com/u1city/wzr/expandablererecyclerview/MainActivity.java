@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.u1city.wzr.expandablererecyclerview.adapter.ExpandableAdapter;
 import com.u1city.wzr.expandablererecyclerview.adapter.ExpandableMenu;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +24,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        recyclerView.setAdapter(new MAdapter());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(new MAdapter());
     }
 
     private class MAdapter extends ExpandableAdapter{

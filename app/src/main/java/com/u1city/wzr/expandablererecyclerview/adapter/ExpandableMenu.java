@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * 描述可以展开菜单
- * Created by user on 2017/1/13.
+ * Created by wuzr on 2017/1/13.
  */
 public class ExpandableMenu {
     //相对于父菜单的位置
@@ -32,7 +32,7 @@ public class ExpandableMenu {
         mPosition = pos;
     }
 
-    public int getPositon() {
+    public int getPosition() {
         return mPosition;
     }
 
@@ -57,7 +57,17 @@ public class ExpandableMenu {
     }
 
     public void setExpanded(boolean expanded) {
-        mExpanded = expanded;
+        if(expanded){
+            mExpanded = true;
+        }else{
+            //如果是关闭则递归关闭所有子菜单
+            mExpanded = false;
+            if(hasChildren()){
+                for (ExpandableMenu menu:mChildren){
+                    menu.setExpanded(false);
+                }
+            }
+        }
     }
 
     public boolean isAlwaysExpanded() {
@@ -80,37 +90,16 @@ public class ExpandableMenu {
         return mChildren != null&&mChildren.size() > 0;
     }
 
-    public int calculateAllChildrenCount(ExpandableMenu parent){
-        if(!parent.hasChildren()){
-            return 0;
-        }
-        int count = parent.getChildren().size();
-        for(ExpandableMenu c:parent.getChildren()){
-            count += calculateAllChildrenCount(c);
-        }
-        return count;
-    }
-
-    public int calculateAllVisibleChildrenCount(ExpandableMenu parent){
-        if(!parent.isExpanded()||!parent.hasChildren()){
-            return 0;
-        }
-        int count = parent.getChildren().size();
-        for(ExpandableMenu c:parent.getChildren()){
-            count += calculateAllVisibleChildrenCount(c);
-        }
-        return count;
-    }
-
     /**
      * 计算菜单的深度，没有父菜单时深度为0，有一级父菜单时深度为1，以此类推
      * @return 菜单项的深度
      */
     public int getDepth(){
         int d = 0;
-        ExpandableMenu m = this;
-        while (m.getParent() != null){
+        ExpandableMenu m = getParent();
+        while (m != null){
             d += 1;
+            m = m.getParent();
         }
         return d;
     }
